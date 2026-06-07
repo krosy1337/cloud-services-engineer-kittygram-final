@@ -33,7 +33,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
@@ -59,25 +59,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
-    - name: Set up nodeJS
-      # Это готовый воркфлоу для установки Node.js на раннер
-      uses: actions/setup-node@v6
-      with:
-        # Это параметр воркфлоу, указывающий нужную версию Node.js
-        node-version: 18
+      - uses: actions/checkout@v6
+      - name: Set up nodeJS
+        # Это готовый воркфлоу для установки Node.js на раннер
+        uses: actions/setup-node@v6
+        with:
+          # Это параметр воркфлоу, указывающий нужную версию Node.js
+          node-version: 18
 
-    - name: Install dependencies
-      # Эта команда устанавливает зависимости для фронтенда
-      run: |
-        cd frontend/
-        npm ci
+      - name: Install dependencies
+        # Эта команда устанавливает зависимости для фронтенда
+        run: |
+          cd frontend/
+          npm ci
 
-    - name: Test frontend
-      # Запускаем тесты
-      run: |
-        cd frontend/
-        npm run test
+      - name: Test frontend
+        # Запускаем тесты
+        run: |
+          cd frontend/
+          npm run test
   build_and_push_to_docker_hub:
     name: Push Docker image to DockerHub
     runs-on: ubuntu-latest
@@ -89,7 +89,7 @@ jobs:
       - name: Set up Docker Buildx
         # Установка сборщика контейнеров Docker:
         uses: docker/setup-buildx-action@v3
-      - name: Login to Docker 
+      - name: Login to Docker
         # Авторизация на Docker Hub:
         uses: docker/login-action@v3
         # При помощи with передаём в action параметры username и password:
@@ -102,14 +102,14 @@ jobs:
         # Одновременный билд и пуш образа в Docker Hub:
         uses: docker/build-push-action@v6
         with:
-          # Параметр context: ./backend/ указывает, что нужный Dockerfile 
+          # Параметр context: ./backend/ указывает, что нужный Dockerfile
           # находится в ./backend/
           context: ./backend/
           # Параметр push: true указывает, что образ нужно не только собрать,
           # но и отправить на Docker Hub:
           push: true
           # В параметре tags задаётся название и тег для образа.
-          # Для каждого пересобранного образа 
+          # Для каждого пересобранного образа
           # устанавливаем тег latest, чтобы потом
           # на сервере и в docker-compose.yml не указывать версию образа:
           tags: ${{ secrets.DOCKER_USERNAME }}/kittygram_backend:latest
@@ -125,7 +125,7 @@ jobs:
       - name: Set up Docker Buildx
         # Установка сборщика контейнеров Docker:
         uses: docker/setup-buildx-action@v3
-      - name: Login to Docker 
+      - name: Login to Docker
         # Авторизация на Docker Hub:
         uses: docker/login-action@v3
         # При помощи with передаём в action параметры username и password:
@@ -138,14 +138,14 @@ jobs:
         # Одновременный билд и пуш образа в Docker Hub:
         uses: docker/build-push-action@v6
         with:
-          # Параметр context: ./backend/ указывает, что нужный Dockerfile 
+          # Параметр context: ./backend/ указывает, что нужный Dockerfile
           # находится в ./backend/
           context: ./frontend/
           # Параметр push: true указывает, что образ нужно не только собрать,
           # но и отправить на Docker Hub:
           push: true
           # В параметре tags задаётся название и тег для образа.
-          # Для каждого пересобранного образа 
+          # Для каждого пересобранного образа
           # устанавливаем тег latest, чтобы потом
           # на сервере и в docker-compose.yml не указывать версию образа:
           tags: ${{ secrets.DOCKER_USERNAME }}/kittygram_frontend:latest
@@ -160,7 +160,7 @@ jobs:
       - name: Set up Docker Buildx
         # Установка сборщика контейнеров Docker:
         uses: docker/setup-buildx-action@v3
-      - name: Login to Docker 
+      - name: Login to Docker
         # Авторизация на Docker Hub:
         uses: docker/login-action@v3
         # При помощи with передаём в action параметры username и password:
@@ -173,61 +173,61 @@ jobs:
         # Одновременный билд и пуш образа в Docker Hub:
         uses: docker/build-push-action@v6
         with:
-          # Параметр context: ./backend/ указывает, что нужный Dockerfile 
+          # Параметр context: ./backend/ указывает, что нужный Dockerfile
           # находится в ./backend/
           context: ./nginx/
           # Параметр push: true указывает, что образ нужно не только собрать,
           # но и отправить на Docker Hub:
           push: true
           # В параметре tags задаётся название и тег для образа.
-          # Для каждого пересобранного образа 
+          # Для каждого пересобранного образа
           # устанавливаем тег latest, чтобы потом
           # на сервере и в docker-compose.yml не указывать версию образа:
           tags: ${{ secrets.DOCKER_USERNAME }}/kittygram_gateway:latest
   deploy:
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       # Дождёмся билда всех фронтенда, бэкенда и гейтвея:
       - build_and_push_to_docker_hub
       - build_frontend_and_push_to_docker_hub
       - build_gateway_and_push_to_docker_hub
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v6
-    # Копируем docker-compose.production.yml на продакшен-сервер:
-    - name: Copy docker-compose.production.yml via ssh
-      uses: appleboy/scp-action@master
-    # Передаём параметры для action appleboy/scp-action:
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY }}
-        source: "docker-compose.production.yml"
-        target: "kittygram"
-    - name: Executing remote ssh commands to deploy
-      uses: appleboy/ssh-action@master
-      env:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+      # Копируем docker-compose.production.yml на продакшен-сервер:
+      - name: Copy docker-compose.production.yml via ssh
+        uses: appleboy/scp-action@master
+        # Передаём параметры для action appleboy/scp-action:
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "docker-compose.production.yml"
+          target: "kittygram"
+      - name: Executing remote ssh commands to deploy
+        uses: appleboy/ssh-action@master
+        env:
           ENV_DATA: ${{ secrets.ENV }}
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY }}
-        envs: ENV_DATA
-        # Параметр script передаёт в action appleboy/ssh-action команды,
-        # которые нужно выполнить на сервере, 
-        # с которым установлено соединение:
-        script: |
-          cd kittygram
-          echo "$ENV_DATA" > .env
-          # Выполняет pull образов с Docker Hub
-          sudo docker compose -f docker-compose.production.yml pull
-          # Перезапускает все контейнеры в Docker Compose
-          sudo docker compose -f docker-compose.production.yml down
-          sudo docker compose -f docker-compose.production.yml up -d
-          # Выполняет миграции и сбор статики
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --no-input
-          sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: ENV_DATA
+          # Параметр script передаёт в action appleboy/ssh-action команды,
+          # которые нужно выполнить на сервере,
+          # с которым установлено соединение:
+          script: |
+            cd kittygram
+            echo "$ENV_DATA" > .env
+            # Выполняет pull образов с Docker Hub
+            sudo docker compose -f docker-compose.production.yml pull
+            # Перезапускает все контейнеры в Docker Compose
+            sudo docker compose -f docker-compose.production.yml down
+            sudo docker compose -f docker-compose.production.yml up -d
+            # Выполняет миграции и сбор статики
+            sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
+            sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --no-input
+            sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/
   pytests:
     runs-on: ubuntu-latest
     needs: deploy
@@ -236,7 +236,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
@@ -259,4 +259,3 @@ jobs:
             Пользователь: ${{ github.actor }}
             Сообщение коммита: ${{ github.event.commits[0].message }}
             Ссылка: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
-            
