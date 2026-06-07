@@ -14,7 +14,7 @@ write_files:
     path: "/root/vm_prep.sh"
     permissions: "0740"
 
-runc  md:
+runcmd:
   - sleep 120
   - sudo -i
   - /root/vm_prep.sh
